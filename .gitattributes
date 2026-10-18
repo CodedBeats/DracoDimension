@@ -2,7 +2,7 @@
 # Must be committed BEFORE any art/audio is added so Git LFS picks those files up.
 
 # Normalise line endings for text files
-* text=auto
+* text=auto eol=lf
 
 # C# source
 *.cs text diff=csharp
