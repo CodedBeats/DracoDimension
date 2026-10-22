@@ -2,18 +2,20 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project
-DracoDimension: a solo, personal Unity RPG (scaled-down, endlessly expandable DQ9-style). Unity `6000.3.26f1` (Unity 6), Universal 2D / URP 17, Input System 1.20, C#. Not for release. `devInfo.md` is the author's full cheat sheet (conventions, git workflow, shortcuts).
+DracoDimension: a solo, personal Unity RPG (scaled-down, endlessly expandable DQ9-style). Unity `6000.3.26f1` (Unity 6), 3D with URP 17, Input System 1.20, C#. Not for release. `devInfo.md` is the author's full cheat sheet (conventions, git workflow, shortcuts).
 
-The project is at an early stage: `Assets/` currently holds only `Scenes/SampleScene.unity` and `Settings/` (URP assets, `InputSystem_Actions.inputactions`). `Assets/Scripts/` is empty. The folder layout and system build order in `devInfo.md` are the plan, not yet the reality.
+The project is at an early stage. All project content lives under `Assets/_Project/` (see the layout in `devInfo.md`); `Assets/Settings/` holds the URP and input assets, and `Assets/TextMesh Pro/` is Unity-generated. So far there are the first item scripts and data, a test scene, and the style-lock shaders. The rest of the layout and the system build order in `devInfo.md` are the plan, not yet the reality.
+
+The visual look is locked in `docs/StyleNotes.md` (import scale and facing, texture rule, toon shader, outline). Read it before adding or importing any model, material or shader.
 
 ## Build / run / test
 There is no CLI build or test setup; everything runs through the Unity Editor (Play mode, Test Runner window, `com.unity.test-framework` 1.6.0 is installed). `*.sln` / `*.csproj` files are generated and gitignored; regenerate via Edit > Preferences > External Tools > Regenerate project files if IntelliSense breaks.
 
 ## Architecture principles (from devInfo.md; follow these when adding code)
-- **Content is data, rules are code.** Items, spells, enemies, vocations are ScriptableObject assets (`Assets/Data/`); code defines how things work, not what exists. Create assets via `[CreateAssetMenu(menuName = "DracoDimension/<Area>/<Type>")]`.
+- **Content is data, rules are code.** Items, spells, enemies, vocations are ScriptableObject assets (`Assets/_Project/Data/`); code defines how things work, not what exists. Create assets via `[CreateAssetMenu(menuName = "DracoDimension/<Area>/<Type>")]`.
 - **Compose, don't hardcode.** An item holds a list of effect objects (e.g. Heal 30, CureStatus Poison). New item = new data; new behaviour = one new effect class.
 - **Definitions vs save data.** Never mutate a ScriptableObject at runtime. Saves record ownership/state and reference definitions by stable string ID (`item_potion`, `spell_heal`, `enemy_slime`, `quest_first_steps`: lowercase snake case, type prefix). Never change an ID once saves exist.
-- Planned script areas under `Assets/Scripts/`: Core, Characters, Battle, Skills, Items, Quests, World, Save, UI, Editor (editor-only tools; the exact folder name `Editor` excludes scripts from builds). Avoid accidentally creating folders named `Resources`, `StreamingAssets`, `Plugins`.
+- Planned script areas under `Assets/_Project/Scripts/`: Core, Characters, Battle, Skills, Items, Quests, World, Save, UI, Editor (editor-only tools; the exact folder name `Editor` excludes scripts from builds). Avoid accidentally creating folders named `Resources`, `StreamingAssets`, `Plugins`.
 - Systems first with placeholder art; story and real art come last.
 
 ## Conventions
@@ -33,7 +35,8 @@ This is a passion project and the point is for the author to write the code and 
 
 ## Git
 Default branch `master`.
-Git LFS is configured in `.gitattributes` for images, PSD/Aseprite, 3D models, audio, video, fonts, and zips. Do not commit such binaries outside LFS (migrating later rewrites history).
+Git LFS is configured in `.gitattributes` for images, PSD/Aseprite, 3D models (fbx, glb, gltf, dae, obj, blend), audio, video, fonts, and zips. Do not commit such binaries outside LFS (migrating later rewrites history). `.asset` files stay as text, not LFS, so data changes show in diffs.
+`Assets/_Project/Ripped/` (DQ-sourced assets) and `_RawSources/` are gitignored and never committed or pushed. `docs/` is gitignored except `docs/StyleNotes.md`; the GDD stays local in `docs/` (read-only reference, search it by numbered heading, e.g. `14.2`).
 Unity doesn't write unsaved scene changes; scenes must be saved before committing. Avoid editing the same scene on two branches (prefer small scenes and prefabs).
 
 ### Commit Format & Notes

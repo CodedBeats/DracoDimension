@@ -3,7 +3,8 @@
 Personal Unity RPG (scaled-down, endlessly expandable DQ9-style). Solo project, not for release.
 This file is my cheat sheet: structure, conventions, commands, and the rules I want to stick to.
 
-- Engine: Unity 6 LTS, Universal 2D (URP) template
+- Engine: Unity 6 LTS, 3D with the Universal Render Pipeline (URP). Switched from the 2D template; render settings live in `Assets/Settings/URP_3D*.asset`
+- Look: low-poly 3D with a shared toon shader and screen-space outline (see `docs/StyleNotes.md`)
 - Language: C# (Visual Studio Community)
 - VCS: Git + Git LFS, default branch `master`, one branch per feature/area, merged into `master` via PR
 - Design goals: data-driven content, systems before story/art, easy to keep adding levels/areas/gear
@@ -25,25 +26,33 @@ This file is my cheat sheet: structure, conventions, commands, and the rules I w
 ```
 DracoDimension/                 <- git repo root (contains Assets/)
 |- Assets/
-|  |- Scenes/                   Bootstrap, Battle, Town, Dungeon, test scenes
-|  |- Scripts/
-|  |  |- Core/                  Game manager, event bus, service locator, utilities
-|  |  |- Characters/            Stats, party, vocations, levelling
-|  |  |- Battle/                Turn order, actions, targeting, damage formulas, enemy AI
-|  |  |- Skills/                Skill points, abilities, battle spells, utility spells
-|  |  |- Items/                 Item types, effects, inventory, equipment
-|  |  |- Quests/                Quest definitions, tracking, flags
-|  |  |- World/                 Maps, dungeons, NPCs, encounters
-|  |  |- Save/                  Save/load, serialization, ID registry
-|  |  |- UI/                    Menus, battle HUD, inventory screens
-|  |  `- Editor/                Editor-only tools (item browser, validators)
-|  |- Data/                     ScriptableObject assets (items, spells, enemies, vocations...)
-|  |- Art/                      Sprites, tilesets, UI art
-|  |- Audio/
-|  |- Prefabs/
-|  `- Settings/                 URP assets, input actions
+|  |- _Project/                 Everything I make (the underscore sorts it to the top)
+|  |  |- Scenes/                Bootstrap, Battle, Town, Dungeon, test scenes
+|  |  |- Scripts/
+|  |  |  |- Core/               Game manager, event bus, service locator, utilities
+|  |  |  |- Characters/         Stats, party, vocations, levelling
+|  |  |  |- Battle/             Turn order, actions, targeting, damage formulas, enemy AI
+|  |  |  |- Skills/             Skill points, abilities, battle spells, utility spells
+|  |  |  |- Items/              Item types, effects, inventory, equipment
+|  |  |  |- Quests/             Quest definitions, tracking, flags
+|  |  |  |- World/              Maps, dungeons, NPCs, encounters
+|  |  |  |- Save/               Save/load, serialization, ID registry
+|  |  |  |- UI/                 Menus, battle HUD, inventory screens
+|  |  |  `- Editor/             Editor-only tools (item browser, validators)
+|  |  |- Data/                  ScriptableObject assets (items, spells, enemies, vocations...)
+|  |  |- Art/                   Models, textures, materials, UI art; Shaders/ holds the toon shaders
+|  |  |- Animation/
+|  |  |- VFX/
+|  |  |- Audio/
+|  |  |- Prefabs/
+|  |  |- ThirdParty/            CC0 packs (Quaternius, KayKit), left untouched
+|  |  `- Ripped/                DQ-sourced assets. Gitignored, never pushed
+|  |- Settings/                 URP assets, input actions
+|  `- TextMesh Pro/             Unity-generated TMP essentials, leave where it is
 |- Packages/                    Package manifest (committed)
 |- ProjectSettings/             Project settings (committed)
+|- docs/                        GDD (gitignored, local) and StyleNotes.md (committed)
+|- _RawSources/                 Raw downloads before import (gitignored)
 |- .gitignore
 |- .gitattributes               (Git LFS rules)
 `- devInfo.md                   (this file)
@@ -187,7 +196,7 @@ If an image was committed before LFS rules existed, convert it with:
 
 ## 10. Editor tools and the item registry
 
-Editor code lives in an `Editor` folder (e.g. `Assets/Scripts/Editor/`) so it is excluded from builds. Use **UI Toolkit** for new tools (IMGUI is legacy). Try the default Inspector first; only build a window when it stops being enough.
+Editor code lives in an `Editor` folder (e.g. `Assets/_Project/Scripts/Editor/`) so it is excluded from builds. Use **UI Toolkit** for new tools (IMGUI is legacy). Try the default Inspector first; only build a window when it stops being enough.
 
 ### Registry (better lookup)
 - Don't hand-write a list of every item in code. The registry should *discover* the assets.
