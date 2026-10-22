@@ -72,3 +72,13 @@ crashlytics-build.properties
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# other docs (the GDD stays local; style notes are tracked)
+docs/*.md
+!docs/StyleNotes.md
+*.pdf
+
+# Copyrighted rips and raw sources (never committed)
+Assets/_Project/Ripped/
+Assets/_Project/Ripped.meta
+_RawSources/
