@@ -169,24 +169,6 @@ If an image was committed before LFS rules existed, convert it with:
 - Project files not syncing in Visual Studio: Edit > Preferences > External Tools > **Regenerate project files**, or Assets > Open C# Project.
 - Domain reload after every script change is normal; Enter Play Mode Options can speed it up later.
 
----
-
-## 7. Visual Studio tips
-
-| Action | Shortcut |
-|---|---|
-| Go to definition | F12 |
-| Find all references | Shift+F12 |
-| Quick actions / fixes | Ctrl+. |
-| Go to any file/type/member | Ctrl+T |
-| Find in files | Ctrl+Shift+F |
-| Format document | Ctrl+K, Ctrl+D |
-| Rename symbol | Ctrl+R, Ctrl+R |
-
-- Debug Unity code: click **Attach to Unity** in VS, then press Play in the editor. Breakpoints hit as normal.
-- Terminal: View > Terminal (opens at the solution folder, which is the project root).
-
----
 
 ## 8. Troubleshooting
 
@@ -200,3 +182,25 @@ If an image was committed before LFS rules existed, convert it with:
 ## 9. Notes / ideas
 
 (Add design notes, balance ideas, TODOs here.)
+
+---
+
+## 10. Editor tools and the item registry
+
+Editor code lives in an `Editor` folder (e.g. `Assets/Scripts/Editor/`) so it is excluded from builds. Use **UI Toolkit** for new tools (IMGUI is legacy). Try the default Inspector first; only build a window when it stops being enough.
+
+### Registry (better lookup)
+- Don't hand-write a list of every item in code. The registry should *discover* the assets.
+- Look things up by stable string ID (`item_potion`), never by file name or asset path.
+- Two options:
+  - **Editor-time:** `AssetDatabase.FindAssets("t:ItemData")` finds every `ItemData` asset. Good for tool windows (browser, search, validation).
+  - **Runtime:** a `ScriptableObject` registry holds a list of item references, filled by an editor tool, and builds an ID -> item `Dictionary` on load. Don't use `AssetDatabase` at runtime, it doesn't exist in builds.
+- Make the tool warn about duplicate or empty IDs, since saves depend on them never changing.
+
+### UI Toolkit tool for making SOs
+- Add a class inheriting `EditorWindow` in an `Editor` folder, with a `[MenuItem("DracoDimension/...")]` entry to open it.
+- Build the UI in `CreateGUI()`. Structure goes in UXML, styling in USS, logic in C#; or build the elements in code to start.
+- Create an asset with `ScriptableObject.CreateInstance<ItemData>()`, then `AssetDatabase.CreateAsset(item, path)` and `AssetDatabase.SaveAssets()`.
+- Edit an asset with a `SerializedObject` and bind the fields to it (e.g. `rootVisualElement.Bind(serializedObject)`), so edits save and support undo with no manual copying.
+- Fields on the SO should stay `[SerializeField] private`; the `SerializedObject` reads them by field name, so renaming one later needs `[FormerlySerializedAs]`.
+- Unity docs: "UI Toolkit" > "Create a custom Editor window".
