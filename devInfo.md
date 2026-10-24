@@ -1,12 +1,11 @@
 # DracoDimension - Dev Info
 
 Personal Unity RPG (scaled-down, endlessly expandable DQ9-style). Solo project, not for release.
-This file is my cheat sheet: structure, conventions, commands, and the rules I want to stick to.
 
 - Engine: Unity 6 LTS, 3D with the Universal Render Pipeline (URP). Switched from the 2D template; render settings live in `Assets/Settings/URP_3D*.asset`
 - Look: low-poly 3D with a shared toon shader and screen-space outline (see `docs/StyleNotes.md`)
-- Language: C# (Visual Studio Community)
-- VCS: Git + Git LFS, default branch `master`, one branch per feature/area, merged into `master` via PR
+- Language: C# (using VS Code cause fuck Visual Stuio)
+- Version Control: Git + Git LFS, default branch `master`, one branch per feature/area, merged into `master` via PR
 - Design goals: data-driven content, systems before story/art, easy to keep adding levels/areas/gear
 
 ---
@@ -17,45 +16,56 @@ This file is my cheat sheet: structure, conventions, commands, and the rules I w
 2. **Compose, don't hardcode.** An item holds a list of effects (Heal 30, CureStatus Poison). New item = new data. New behaviour = one new effect class.
 3. **Definitions vs save data.** Never modify a ScriptableObject at runtime. The asset says what a Potion *is*; the save file says I own 5. Reference things by stable string ID (e.g. `item_potion`), never by name or asset path.
 4. **Systems first, placeholders for art.** Combat, items, equipment, skills, party, quests all get built with boxes and text before any real art or story.
-5. **Small commits, one system per branch.**
 
 ---
 
 ## 2. Folder structure
 
 ```
-DracoDimension/                 <- git repo root (contains Assets/)
-|- Assets/
-|  |- _Project/                 Everything I make (the underscore sorts it to the top)
-|  |  |- Scenes/                Bootstrap, Battle, Town, Dungeon, test scenes
-|  |  |- Scripts/
-|  |  |  |- Core/               Game manager, event bus, service locator, utilities
-|  |  |  |- Characters/         Stats, party, vocations, levelling
-|  |  |  |- Battle/             Turn order, actions, targeting, damage formulas, enemy AI
-|  |  |  |- Skills/             Skill points, abilities, battle spells, utility spells
-|  |  |  |- Items/              Item types, effects, inventory, equipment
-|  |  |  |- Quests/             Quest definitions, tracking, flags
-|  |  |  |- World/              Maps, dungeons, NPCs, encounters
-|  |  |  |- Save/               Save/load, serialization, ID registry
-|  |  |  |- UI/                 Menus, battle HUD, inventory screens
-|  |  |  `- Editor/             Editor-only tools (item browser, validators)
-|  |  |- Data/                  ScriptableObject assets (items, spells, enemies, vocations...)
-|  |  |- Art/                   Models, textures, materials, UI art; Shaders/ holds the toon shaders
-|  |  |- Animation/
-|  |  |- VFX/
-|  |  |- Audio/
-|  |  |- Prefabs/
-|  |  |- ThirdParty/            CC0 packs (Quaternius, KayKit), left untouched
-|  |  `- Ripped/                DQ-sourced assets. Gitignored, never pushed
-|  |- Settings/                 URP assets, input actions
-|  `- TextMesh Pro/             Unity-generated TMP essentials, leave where it is
-|- Packages/                    Package manifest (committed)
-|- ProjectSettings/             Project settings (committed)
-|- docs/                        GDD (gitignored, local) and StyleNotes.md (committed)
-|- _RawSources/                 Raw downloads before import (gitignored)
-|- .gitignore
-|- .gitattributes               (Git LFS rules)
-`- devInfo.md                   (this file)
+DracoDimension/                     # git repo root (contains Assets/)
+│
+├── Assets/
+│   ├── _Project/                   # everything I make (underscore sorts it to the top)
+│   │   ├── Scenes/                 # Bootstrap, Battle, Town, Dungeon, test scenes
+│   │   │
+│   │   ├── Scripts/
+│   │   │   ├── Core/               # game manager, event bus, service locator, utilities
+│   │   │   ├── Characters/         # stats, party, vocations, levelling
+│   │   │   ├── Battle/             # turn order, actions, targeting, damage formulas, enemy AI
+│   │   │   ├── Skills/             # skill points, abilities, battle spells, utility spells
+│   │   │   ├── Items/              # item types, effects, inventory, equipment
+│   │   │   ├── Quests/             # quest definitions, tracking, flags
+│   │   │   ├── World/              # maps, dungeons, NPCs, encounters
+│   │   │   ├── Save/               # save/load, serialization, ID registry
+│   │   │   ├── UI/                 # menus, battle HUD, inventory screens
+│   │   │   ├── Sandbox/            # throwaway test scripts (ItemTester, FloatingSpeech)
+│   │   │   └── Editor/             # editor-only tools (item browser, validators)
+│   │   │
+│   │   ├── Data/                   # ScriptableObject assets, grouped by type
+│   │   │   └── Items/              # item assets (Potion.asset ...); spells, enemies, vocations follow
+│   │   │
+│   │   ├── Art/                    # models, textures, materials, UI art
+│   │   │   └── Shaders/            # toon shaders and their .hlsl files
+│   │   │
+│   │   ├── Animation/
+│   │   ├── VFX/
+│   │   ├── Audio/
+│   │   ├── Prefabs/
+│   │   │
+│   │   ├── ThirdParty/             # CC0 packs (Quaternius, KayKit), left untouched
+│   │   └── Ripped/                 # DQ-sourced assets. Gitignored, never pushed
+│   │
+│   ├── Settings/                   # URP assets, input actions
+│   └── TextMesh Pro/               # Unity-generated TMP essentials, leave where it is
+│
+├── Packages/                       # package manifest (committed)
+├── ProjectSettings/                # project settings (committed)
+├── docs/                           # GDD (gitignored, local) and StyleNotes.md (committed)
+├── _RawSources/                    # raw downloads before import (gitignored)
+│
+├── .gitignore
+├── .gitattributes                  # Git LFS rules
+└── devInfo.md                      # this file
 ```
 
 Notes:
@@ -91,62 +101,31 @@ Notes:
 
 ---
 
-## 5. Daily git workflow
+## 5. GIT
+### Active branches
+- docs
+- feature/editor-tools
 
+### Branches to/can delete
+- feature/style-lock
+
+### Helpful cmds
 ```bash
-git status                           # what changed
-git switch master
-git pull origin master               # always start from the latest master
-git switch -c feature/combat         # new branch for a system
-# ...work...
-git add .
-git commit -m "Add basic damage calculation"
-git push -u origin feature/combat    # first push of a new branch (plain `git push` after that)
-# open a PR on GitHub, look over the diff, merge
-git switch master
-git pull origin master               # pick up the merged work
-git tag v0.1-combat                  # tag stable points on master
+git switch -c feature/combat        # new branch for a system
+git switch master   
+
+git mv scripts Scripts              # fix a case-only rename (Windows)
+git restore <file>                  # discard changes to a file
+git restore --staged <file>         # unstage a file
+
+git tag v0.1-combat                 # tag stable points on master
 git push --tags
 ```
 
-Continuing work on an existing area branch (e.g. `feature/combat`):
-
-```bash
-git switch feature/combat
-git pull origin master               # bring the branch up to date with master first
-```
-
-### Branch lifetime
-
-- **One-off branches:** delete after the PR merges.
-- **Area branches** (combat, items, quests, ui): fine to keep and reuse, as long as I pull `master` into them before continuing.
-- Deleting a merged branch loses nothing. The commits are already in `master`, and GitHub can restore a deleted branch from its PR page.
-- If PRs are **squash-merged**, reusing the same branch can cause odd conflicts because `master` holds one squashed commit rather than the branch's own commits. Either use regular merge commits, or reset the branch to master before reusing it (only when it has nothing unmerged): `git switch feature/combat` then `git reset --hard origin/master`.
-- Optional GitHub setting: Settings > General > "Automatically delete head branches" removes the remote branch on merge.
-
-Habits:
-- **Save the scene (Ctrl+S) before committing.** Unity doesn't write unsaved scene changes.
-- Never commit an asset without its `.meta` file (and vice versa). Keep Edit > Project Settings > Editor > Version Control on **Visible Meta Files** and Asset Serialization on **Force Text**.
-- One system per commit. Easier to roll back.
-- Work from one machine at a time, or always pull before starting and push when stopping.
-
-### Useful git commands
-
-```bash
-git log --oneline --graph --all  # history overview
-git diff                         # unstaged changes
-git diff --staged                # staged changes
-git restore <file>               # discard changes to a file
-git restore --staged <file>      # unstage a file
-git stash / git stash pop        # shelve and reapply work in progress
-git branch -d feature/combat     # delete a merged local branch
-git push origin --delete feature/combat   # delete the remote branch
-git fetch --prune                # drop local refs to remote branches that were deleted
-git mv scripts Scripts           # fix a case-only rename (Windows)
-```
+### Habits:
+- Never commit an asset without its `.meta` file (and vice versa).
 
 ### Git LFS
-
 ```bash
 git lfs install                  # once per machine
 git lfs track                    # list tracked patterns
@@ -154,14 +133,12 @@ git lfs ls-files                 # files currently stored in LFS
 git lfs status
 git lfs version
 ```
-
 If an image was committed before LFS rules existed, convert it with:
 `git lfs migrate import --include="*.png"` (rewrites history, so do it early or not at all).
 
 ---
 
 ## 6. Unity shortcuts and tips
-
 | Action | Shortcut |
 |---|---|
 | Play / Pause / Step | Ctrl+P / Ctrl+Shift+P / Ctrl+Alt+P |
@@ -180,7 +157,6 @@ If an image was committed before LFS rules existed, convert it with:
 
 
 ## 8. Troubleshooting
-
 - **Pink/missing references after a pull:** a `.meta` file was missed or an asset moved outside Unity. Check `git status` for untracked `.meta` files.
 - **IntelliSense broken:** regenerate project files (see above), then restart VS.
 - **Huge repo / slow pushes:** a binary was committed outside LFS. Check `git lfs ls-files` and `.gitattributes`.
@@ -189,13 +165,11 @@ If an image was committed before LFS rules existed, convert it with:
 ---
 
 ## 9. Notes / ideas
-
-(Add design notes, balance ideas, TODOs here.)
+(design notes, balance ideas, TODOs here)
 
 ---
 
 ## 10. Editor tools and the item registry
-
 Editor code lives in an `Editor` folder (e.g. `Assets/_Project/Scripts/Editor/`) so it is excluded from builds. Use **UI Toolkit** for new tools (IMGUI is legacy). Try the default Inspector first; only build a window when it stops being enough.
 
 ### Registry (better lookup)
