@@ -15,6 +15,7 @@ There is no CLI build or test setup; everything runs through the Unity Editor (P
 - **Content is data, rules are code.** Items, spells, enemies, vocations are ScriptableObject assets (`Assets/_Project/Data/`); code defines how things work, not what exists. Create assets via `[CreateAssetMenu(menuName = "DracoDimension/<Area>/<Type>")]`.
 - **Compose, don't hardcode.** An item holds a list of effect objects (e.g. Heal 30, CureStatus Poison). New item = new data; new behaviour = one new effect class.
 - **Definitions vs save data.** Never mutate a ScriptableObject at runtime. Saves record ownership/state and reference definitions by stable string ID (`item_potion`, `spell_heal`, `enemy_slime`, `quest_first_steps`: lowercase snake case, type prefix). Never change an ID once saves exist.
+- **Registry and editor tools.** Don't hand-write a list of every asset in code; a registry discovers them and looks up by stable ID. Editor-time lookup uses `AssetDatabase.FindAssets("t:ItemData")`; runtime must not use `AssetDatabase` (it doesn't exist in builds), so a registry SO filled by an editor tool builds an ID -> item `Dictionary`. Editor tools live in an `Editor` folder and use **UI Toolkit** (not IMGUI); try the default Inspector first. Bind to a `SerializedObject` so edits save and undo. Renaming a serialized field needs `[FormerlySerializedAs]`.
 - Planned script areas under `Assets/_Project/Scripts/`: Core, Characters, Battle, Skills, Items, Quests, World, Save, UI, Editor (editor-only tools; the exact folder name `Editor` excludes scripts from builds). Avoid accidentally creating folders named `Resources`, `StreamingAssets`, `Plugins`.
 - Systems first with placeholder art; story and real art come last.
 
@@ -34,7 +35,7 @@ This is a passion project and the point is for the author to write the code and 
 - **When they do ask for help writing code,** keep it small and match the Conventions above. Explain the key lines rather than just dropping the result.
 
 ## Git
-Default branch `master`.
+Default branch `master`. One branch per feature/area (e.g. `feature/editor-tools`), merged into `master` via PR.
 Git LFS is configured in `.gitattributes` for images, PSD/Aseprite, 3D models (fbx, glb, gltf, dae, obj, blend), audio, video, fonts, and zips. Do not commit such binaries outside LFS (migrating later rewrites history). `.asset` files stay as text, not LFS, so data changes show in diffs.
 `Assets/_Project/Ripped/` (DQ-sourced assets) and `_RawSources/` are gitignored and never committed or pushed. `docs/` is gitignored except `docs/StyleNotes.md`; the GDD stays local in `docs/` (read-only reference, search it by numbered heading, e.g. `14.2`).
 Unity doesn't write unsaved scene changes; scenes must be saved before committing. Avoid editing the same scene on two branches (prefer small scenes and prefabs).
