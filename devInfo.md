@@ -34,6 +34,7 @@ DracoDimension/                     # git repo root (contains Assets/)
 │   │   │   ├── Battle/             # turn order, actions, targeting, damage formulas, enemy AI
 │   │   │   ├── Skills/             # skill points, abilities, battle spells, utility spells
 │   │   │   ├── Items/              # item types, effects, inventory, equipment
+│   │   │   ├── Dimension/          # idk, but didn't know where else to put it, hold all dimension stoof
 │   │   │   ├── Quests/             # quest definitions, tracking, flags
 │   │   │   ├── World/              # maps, dungeons, NPCs, encounters
 │   │   │   ├── Save/               # save/load, serialization, ID registry

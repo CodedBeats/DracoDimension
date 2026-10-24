@@ -67,5 +67,8 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "DracoDimension.slnx"
+    "dotnet.defaultSolution": "DracoDimension.slnx",
+    "dotnet.codeLens.enableReferencesCodeLens": false,
+    "csharp.referencesCodeLens.enabled": false,
+    "vstuc.enableCodeModel": false
 }
