@@ -39,6 +39,7 @@ Screen-space depth edge detection, applied once to the whole screen. No per-mode
 - `Thickness` `1.5`, `Threshold` `0.3`, `Outline Color` black.
 - Check it in the Game view, not the Scene view.
 - Limit: depth-only, so it draws silhouettes and overlaps, not inner creases.
+- Limit: transparent sprites (icons, speech bubbles) don't write depth, so they get no outline. That's intended for overlay-style sprites. If a world sprite ever needs one, use an Opaque + Alpha Clipping material.
 
 ## Lighting and camera
 - One Directional Light as the main light. Shadows off for now.
