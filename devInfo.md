@@ -106,6 +106,7 @@ Notes:
 ### Active branches
 - docs
 - feature/editor-tools
+- feature/item-data
 
 ### Branches to/can delete
 - feature/style-lock
