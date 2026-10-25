@@ -106,6 +106,7 @@ Notes:
 ### Active branches
 - docs
 - feature/editor-tools
+- feature/item-data
 
 ### Branches to/can delete
 - feature/style-lock
@@ -188,3 +189,27 @@ Editor code lives in an `Editor` folder (e.g. `Assets/_Project/Scripts/Editor/`)
 - Edit an asset with a `SerializedObject` and bind the fields to it (e.g. `rootVisualElement.Bind(serializedObject)`), so edits save and support undo with no manual copying.
 - Fields on the SO should stay `[SerializeField] private`; the `SerializedObject` reads them by field name, so renaming one later needs `[FormerlySerializedAs]`.
 - Unity docs: "UI Toolkit" > "Create a custom Editor window".
+
+
+---
+
+## 11. Next up: Item creator UI (carry on prompt)
+Where I'm at: item data foundation done (GameDefinition, Item hierarchy, enums, structs, OnValidate rules), and ItemDatabase SO + `DracoDimension > Rebuild Item Database` menu work. Branch: `feature/editor-tools`. Remaining GDD 10.12 item: the item creator UI, with SerializedProperty field-name strings kept in one place.
+
+Work through these in order, one at a time, and get each compiling before moving on:
+
+1. **Field name constants.** Make a static class in `Scripts/Editor/` (e.g. `ItemFields`) holding `const string` values for every private field name the tools look up (`"_itemDB"`, `"_displayName"`, `"_id"`, `"_buyPrice"`, ...). Swap the `"_itemDB"` string in `ItemDatabaseTools` to use it. Rule: if I rename a field, it's one edit.
+2. **Empty window.** An `EditorWindow` class opened from a `[MenuItem("DracoDimension/Item Creator")]`. Build a single Label in `CreateGUI()` on `rootVisualElement` and confirm it opens. (Web comparison: `CreateGUI` is like the component's render, `rootVisualElement` is the root div.)
+3. **Type dropdown.** Pick Weapon / Armor / Consumable / Material / Key. Decide: a `DropdownField` of names, or an enum + `EnumField`?
+4. **Make the temp item.** On pressing "New", `ScriptableObject.CreateInstance<WeaponItem>()` (or the chosen type) in memory only. Nothing is saved yet.
+5. **Bind the fields.** Wrap it in a `SerializedObject`, show the fields with `PropertyField` or `InspectorElement.FillDefaultInspector`, then `rootVisualElement.Bind(so)`. Try the default Inspector first; only hand-build fields if it's not enough.
+6. **Create button.** Build the path from type and id (e.g. `Assets/_Project/Data/Items/Weapons/`), make the folder if missing, refuse to overwrite an existing asset, then `AssetDatabase.CreateAsset` + `SaveAssets`.
+7. **Auto-rebuild.** After creating, call the database rebuild so the new item is registered. (Pull the rebuild body into a public method the window can call.)
+
+Things to decide along the way:
+- Does the id get a type prefix (`wpn_copper_sword`, the GDD example) or stay as plain `copper_sword` like `Item.OnValidate` does now? Pick one and apply it in one place.
+- Duplicate or empty id warning in the rebuild (use a `HashSet<string>`, like a JS `Set`: `Add` returns false if it's already there).
+- `FindAssets("t:ItemDatabase")` currently indexes `[0]` with no check. Handle zero found and more than one found.
+- Check `CreateAssetMenu` exists on the concrete item types, or the creator window is the only way to make them (which is fine, just know it).
+
+Stuck? Ask for a hint, and ask "what is X in JS terms" for any C# / Unity word that doesn't click.
